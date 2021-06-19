@@ -1,0 +1,19 @@
+---
+services:
+  app:
+    build:
+      context: ./
+      dockerfile: ./Dockerfile
+    environment:
+      MONGO_INITDB: ${MONGO_INITDB:-mongo}
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME:-root}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD:-example}
+    ports:
+      - 1323:1323
+
+  mongo:
+    image: mongo
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME:-root}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD:-example}
