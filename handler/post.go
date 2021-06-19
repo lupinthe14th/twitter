@@ -38,7 +38,7 @@ func (h *Handler) CreatePost(c echo.Context) error {
 	}
 
 	// Save post in database
-	if err := db.DB("twitter").C("post").Insert(p); err != nil {
+	if err := db.DB("twitter").C("posts").Insert(p); err != nil {
 		return err
 	}
 	return c.JSON(http.StatusCreated, p)
