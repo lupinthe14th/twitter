@@ -25,8 +25,10 @@ func TestMain(m *testing.M) {
 		os.Exit(1)
 	}
 	status := m.Run()
-	tearDown()
-
+	if err := tearDown(); err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
 	os.Exit(status)
 }
 
