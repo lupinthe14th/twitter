@@ -59,6 +59,7 @@ func setUp() error {
 }
 
 func tearDown() error {
+	defer h.DB.Close()
 	// drop test database
 	if err := h.DB.DB("twitter").DropDatabase(); err != nil {
 		return err
