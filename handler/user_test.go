@@ -78,8 +78,14 @@ func TestSignup(t *testing.T) {
 		in   string
 		want want
 	}{
-		{in: `{"email": "alice@example.com", "password": "shhh!"}`, want: want{user: model.User{Email: "alice@example.com", Password: "shhh!"}, code: http.StatusCreated}},
-		{in: `{"email": "", "password": "shhh!"}`, want: want{code: http.StatusBadRequest}},
+		{
+			in:   `{"email": "alice@example.com", "password": "shhh!"}`,
+			want: want{user: model.User{Email: "alice@example.com", Password: "shhh!"}, code: http.StatusCreated},
+		},
+		{
+			in:   `{"email": "", "password": "shhh!"}`,
+			want: want{code: http.StatusBadRequest},
+		},
 	}
 	for i, tt := range tests {
 		i, tt := i, tt
