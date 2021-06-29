@@ -11,7 +11,6 @@ import (
 
 	"github.com/labstack/echo"
 	"github.com/lupinthe14th/twitter/model"
-	"github.com/stretchr/testify/assert"
 	"gopkg.in/mgo.v2"
 )
 
@@ -70,11 +69,17 @@ func tearDown() error {
 func TestSignup(t *testing.T) {
 	t.Parallel()
 
+	type want struct {
+		user model.User
+		code int
+	}
+
 	tests := []struct {
 		in   string
-		want model.User
+		want want
 	}{
-		{in: `{"email": "alice@example.com", "password": "shhh!"}`, want: model.User{Email: "alice@example.com", Password: "shhh!"}},
+		{in: `{"email": "alice@example.com", "password": "shhh!"}`, want: want{user: model.User{Email: "alice@example.com", Password: "shhh!"}, code: http.StatusCreated}},
+		{in: `{"email": "", "password": "shhh!"}`, want: want{code: http.StatusBadRequest}},
 	}
 	for i, tt := range tests {
 		i, tt := i, tt
@@ -87,15 +92,24 @@ func TestSignup(t *testing.T) {
 			rec := httptest.NewRecorder()
 
 			c := e.NewContext(req, rec)
-			if assert.NoError(t, h.Signup(c)) {
-				assert.Equal(t, http.StatusCreated, rec.Code)
-
+			if err := h.Signup(c); err != nil {
+				he, ok := err.(*echo.HTTPError)
+				if ok {
+					if he.Code != tt.want.code {
+						t.Errorf("in: %v got: %v want: %v", tt.in, rec, tt.want)
+					}
+				}
+			} else {
+				if rec.Code != tt.want.code {
+					t.Errorf("in: %v rec: %v want: %v", tt.in, rec, tt.want)
+				}
 				got := make(map[string]interface{})
 				if err := json.NewDecoder(rec.Body).Decode(&got); err != nil {
 					t.Fatal(err)
 				}
-				assert.Equal(t, got["email"], tt.want.Email)
-				assert.Equal(t, got["password"], tt.want.Password)
+				if !(got["email"] == tt.want.user.Email && got["password"] == tt.want.user.Password) {
+					t.Errorf("in: %v got: %v want: %v", tt.in, got, tt.want)
+				}
 			}
 		})
 	}
